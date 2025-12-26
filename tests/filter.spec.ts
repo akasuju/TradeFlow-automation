@@ -1,25 +1,17 @@
-// import { test, expect } from '@playwright/test';
-// import { getSelectedRow } from '../utils/excelutil';
-// import { FilterPage } from '../Pages/Filter';
+import { parse } from 'csv-parse/sync';
+import fs from 'fs';
+import { test, expect } from "@playwright/test"
 
+const testdatacsv = './Data/testdata.csv';
+fs.readFileSync(testdatacsv, 'utf-8');
+const readfile = fs.readFileSync(testdatacsv, 'utf-8');
+const records = parse(readfile, { columns: true, skip_empty_lines: true }) as Array<{ ClientCode: string }>;
 
-// test('Filter using selected Excel row and selected fields', async ({ page }) => {
+const loginURL = process.env.LoginURL!;
 
-//   // 🔥 Choose the row here (24th client)
-//   const rowData = getSelectedRow(24);
+test(' Filter Test', async ({ page }) => {
+  await page.goto(loginURL);
+  const clientcode_filter = await page.locator('#controllable-states-demo');
+  await clientcode_filter.fill(`${records[0].ClientCode}`);
 
-//   const filterPage = new FilterPage(page);
-
-//   // 🔥 Choose which filters to apply
-//   await filterPage.Filters({
-//     clientCode: rowData.ClientCode,      // OR undefined
-//     stockSymbol: rowData.StockSymbol,    // OR undefined
-//     transactionNo: rowData.TransactionNo // OR undefined
-//   });
-
-//   // Assertion example
-//   const resultClient = await page.locator('table tbody tr:first-child td.client')
-//     .textContent();
-
-//   expect(resultClient?.trim()).toBe(rowData.ClientCode);
-//});
+});

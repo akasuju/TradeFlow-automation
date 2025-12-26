@@ -4,7 +4,7 @@ import { UserLogin } from "./Pages/Loginpage";
 //import user from "./playwright/.auth/user.json" assert { type: "json" };
 
 export default async function globalsetup() {
-    const browser: Browser = await chromium.launch({ headless: true });
+    const browser: Browser = await chromium.launch({ headless: false });
     const context = await browser.newContext();
     const page: Page = await context.newPage();
     //await page.goto(process.env.LoginURL!);

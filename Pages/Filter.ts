@@ -1,19 +1,9 @@
 import { Page } from "@playwright/test";
-import * as XLSX from 'xlsx';
-import path from 'path';
+import { parse } from 'csv-parse/sync';
+import fs from 'fs';
 
-const TestData = path.join(__dirname, '../Data/testdata.xlsx');
+const testdatacsv = './Data/testdata.csv';
+fs.readFileSync(testdatacsv, 'utf-8');
+const readfile = fs.readFileSync(testdatacsv, 'utf-8');
+const records = parse(readfile, { columns: true, skip_empty_lines: true });
 
-export class FilterPage {
-    constructor(private page: Page) { }
-    async Filters(
-    ) {
-        const workbook = XLSX.readFile(TestData);
-        const worksheet = workbook.Sheets["testdata"];
-        const xlsToJson = XLSX.utils.sheet_to_json(worksheet);
-        console.log(xlsToJson);
-
-        const ClientCodeFilter = this.page.locator('#controllable-states-demo').first()
-        await ClientCodeFilter.fill(``);
-    }
-}
