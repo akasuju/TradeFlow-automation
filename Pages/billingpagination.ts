@@ -1,14 +1,13 @@
 import { Page, expect } from "@playwright/test";
 
 export class BillsPage {
-  constructor(private page: Page) {}
+  constructor(private page: Page) { }
 
   async assertValueExistsInPagination(
     expectedValue: string,
-    columnIndex: number // 1-based index
+    columnIndex: number
   ) {
     while (true) {
-      // Get all rows in current page
       const rows = this.page.locator('table tbody tr');
       const rowCount = await rows.count();
 
@@ -23,8 +22,6 @@ export class BillsPage {
           return;
         }
       }
-
-      // Check if next page button is disabled
       const nextButton = this.page.locator('button[aria-label="Next page"]');
 
       if (await nextButton.isDisabled()) {
