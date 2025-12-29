@@ -19,6 +19,19 @@ export class FilterPage {
         await expect(click_option).toBeVisible();
         await click_option.click();
         const filter_button = await this.page.getByRole('button', { name: 'Filter' }).click();
+        // Get all visible rows (MUI DataGrid)
+        const rows = this.page.locator('[role="row"][data-rowindex]');
+        const rowCount = await rows.count();
+
+        expect(rowCount).toBeGreaterThan(0); // ensure results exist
+
+        for (let i = 0; i < rowCount; i++) {
+            const clientNameCell = rows.nth(i).locator('[role="cell"]').nth(0);
+            await expect(clientNameCell).toContainText(`${records[1].ClientName}`); // Adjust index based on actual column position
+        }
+        // await expect(
+        //     this.page.getByText(records[1].ClientName, { exact: true })
+        // ).toBeVisible();
 
     }
 }
