@@ -26,6 +26,6 @@ test.describe('Filter Tests', () => {
     await page.waitForLoadState('networkidle');
 
     
-    await page.pause();
+    
   })
 });
