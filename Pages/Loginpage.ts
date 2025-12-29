@@ -32,9 +32,7 @@ export class UserLogin {
 
         const emailInput = this.page.getByRole("textbox", { name: "Email" });
         await emailInput.waitFor({ state: "visible" });
-
         await emailInput.fill(username);
-
         const passwordInput = this.page.getByRole("textbox", {
             name: "Enter Your Password",
         });

@@ -22,7 +22,7 @@ test.describe('Filter Tests', () => {
 
   test(' Filter Test client code filter', async ({ page }) => {
     const ClientFilter = new FilterPage(page);
-    await ClientFilter.applyClientCodeFilter(1);
+    await ClientFilter.applyClientCodeFilter_Sell(1);
     await page.waitForLoadState('networkidle');
 
     
