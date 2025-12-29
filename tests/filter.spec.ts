@@ -20,12 +20,22 @@ test.describe('Filter Tests', () => {
   //   await page.getByRole('button', { name: 'Filter' }).click();
   // });
 
-  test(' Filter Test client code filter', async ({ page }) => {
+  test.skip(' Filter Test client code filter in Buy', async ({ page }) => {
     const ClientFilter = new FilterPage(page);
-    await ClientFilter.applyClientCodeFilter_Sell(1);
+    await ClientFilter.applyClientCodeFilter_Buy(1);
     await page.waitForLoadState('networkidle');
 
-    
-    
-  })
+  });
+  test(' Filter Test client code filter in Sell', async ({ page }) => {
+    const ClientFilter = new FilterPage(page);
+    await ClientFilter.applyClientCodeFilter_Sell(0);
+    await page.waitForLoadState('networkidle');
+
+  });
+
+  test.only('Filter Test for number of total bills assertion', async ({ page }) => {
+    const ClientFilter = new FilterPage(page);
+    await ClientFilter.NumberofBillsassertion(0);
+    await page.waitForLoadState('networkidle');
+  });
 });

@@ -10,7 +10,7 @@ const records = parse(readfile, { columns: true, skip_empty_lines: true }) as Ar
 const loginURL = process.env.LoginURL!;
 export class FilterPage {
     constructor(private page: Page) { }
-    async applyClientCodeFilter_Sell(clientcodenumber: number) {
+    async applyClientCodeFilter_Buy(clientcodenumber: number) {
         await this.page.goto(process.env.Bills!);
         const clientcode_filter = await this.page.locator('#controllable-states-demo').first();
         await clientcode_filter.fill(`${records[clientcodenumber].ClientCode}`);
@@ -63,7 +63,7 @@ export class FilterPage {
     }
 
 
-    async applyClientCodeFilter_Buy(clientcodenumber: number) {
+    async applyClientCodeFilter_Sell(clientcodenumber: number) {
         await this.page.goto(process.env.Bills!);
         const clientcode_filter = await this.page.locator('#controllable-states-demo').first();
         await clientcode_filter.fill(`${records[clientcodenumber].ClientCode}`);
@@ -71,12 +71,10 @@ export class FilterPage {
         const click_option = await this.page.locator('#controllable-states-demo-option-0');
         await expect(click_option).toBeVisible();
         await click_option.click();
-
         const BuySell_Filter = await this.page.locator('div').filter({ hasText: /^Buy$/ }).click();
         const Sell_Filter = await this.page.getByRole('option', { name: 'Sell' }).click();
-
-
-        // Wait for DataGrid to update
+        await this.page.getByRole('button', { name: 'Filter' }).click();
+        // Wait for DataGrid to update 
         await this.page.waitForLoadState('networkidle');
         await this.page.waitForTimeout(2000);
 
@@ -118,5 +116,49 @@ export class FilterPage {
         }
     }
 
-}
+    async NumberofBillsassertion(clientcodenumber: number) {
+        await this.page.goto(process.env.Bills!);
+        const clientcode_filter = await this.page.locator('#controllable-states-demo').first();
+        await clientcode_filter.fill(`${records[clientcodenumber].ClientCode}`);
+        await this.page.waitForTimeout(4000);
+        const click_option = await this.page.locator('#controllable-states-demo-option-0');
+        await expect(click_option).toBeVisible();
+        await click_option.click();
+        await this.page.getByRole('button', { name: 'Filter' }).click();
+        // Wait for DataGrid to update 
+        await this.page.waitForLoadState('networkidle');
+        await this.page.waitForTimeout(2000);
 
+        // --- Assert Total Bills count matches row count ---
+
+        const totalBillsLocator = this.page.locator(
+            "//span[contains(normalize-space(), 'Total Bills')]"
+        );
+
+        await expect(totalBillsLocator).toBeVisible({ timeout: 10000 });
+
+        const totalBillsText = await totalBillsLocator.innerText();
+        // Example: "Total Bills : 10"
+
+        const totalBills = Number(totalBillsText.replace(/\D+/g, ''));
+
+        // Count grid rows
+        let rows = this.page.locator('.MuiDataGrid-row');
+        let rowCount = await rows.count();
+
+        if (rowCount === 0) {
+            rows = this.page.locator('[role="grid"] [role="row"]');
+            rowCount = await rows.count();
+        }
+
+        if (rowCount === 0) {
+            rows = this.page.locator('[data-id]');
+            rowCount = await rows.count();
+        }
+
+        console.log(`UI Total Bills: ${totalBills}`);
+        console.log(`Grid Row Count: ${rowCount}`);
+
+        expect(rowCount).toBe(totalBills);
+    }
+}
