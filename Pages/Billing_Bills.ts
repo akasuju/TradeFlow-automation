@@ -109,9 +109,6 @@ export class FilterPage {
             const row = rows.nth(i);
             const rowText = await row.innerText().catch(() => '');
             console.log(`Row ${i} cell text: ${rowText}`);
-
-            // Assert that the row contains the expected client name. Use the locator assertion
-            // which retries until the text appears (reduces flakiness).
             await expect(row).toContainText(records[clientcodenumber].ClientName, { timeout: 5000 });
         }
     }
@@ -128,9 +125,6 @@ export class FilterPage {
         // Wait for DataGrid to update 
         await this.page.waitForLoadState('networkidle');
         await this.page.waitForTimeout(2000);
-
-        // --- Assert Total Bills count matches row count ---
-
         const totalBillsLocator = this.page.locator(
             "//span[contains(normalize-space(), 'Total Bills')]"
         );
@@ -160,5 +154,51 @@ export class FilterPage {
         console.log(`Grid Row Count: ${rowCount}`);
 
         expect(rowCount).toBe(totalBills);
+    }
+
+    async DateFilterAssertion(fromdate: string, todate: string) {
+        await this.page.goto(process.env.Bills!);
+        await this.page.waitForLoadState('networkidle');
+
+        // Wait for date fields to be visible and enabled before filling
+        // const fromDateLocator = this.page.locator('#fromDate');
+        // const toDateLocator = this.page.locator('#toDate');
+        await this.page.waitForTimeout(4000);
+        const fromDateLocator = this.page.getByRole('textbox', { name: 'dd/mm/yyyy' }).nth(0);
+        const toDateLocator = this.page.getByRole('textbox', { name: 'dd/mm/yyyy' }).nth(1);
+
+        await expect(fromDateLocator).toBeVisible({ timeout: 10000 });
+        await expect(toDateLocator).toBeVisible({ timeout: 10000 });
+
+        await fromDateLocator.fill(fromdate);
+        await toDateLocator.fill(todate);
+
+        await this.page.getByRole('button', { name: 'Filter' }).click();
+        // Wait for DataGrid to update 
+        await this.page.waitForLoadState('networkidle');
+        await this.page.waitForTimeout(2000);
+
+        // Try common grid row selectors (choose the one that matches your MUI version)
+        let rows = this.page.locator('.MuiDataGrid-row');
+        let rowCount = await rows.count();
+        console.log("Final row count: " + rowCount);
+
+        // Wait for at least one visible row to avoid racing the grid render
+        if (rowCount > 0) {
+            await expect(rows.first()).toBeVisible({ timeout: 10000 });
+        }
+        for (let i = 0; i < rowCount; i++) {
+            const row = rows.nth(i);
+            const dateCell = row.locator('div[data-field="billDate"]'); // Adjust selector based on actual data-field
+            const dateText = await dateCell.innerText();
+            const billDate = new Date(dateText);
+            const fromDateObj = new Date(fromdate);
+            const toDateObj = new Date(todate);
+
+            console.log(`Row ${i}: dateText="${dateText}", billDate=${billDate}, fromDate=${fromDateObj}, toDate=${toDateObj}`);
+            console.log(`Row ${i}: billDate >= fromDateObj? ${billDate >= fromDateObj}, billDate <= toDateObj? ${billDate <= toDateObj}`);
+
+            expect(billDate >= fromDateObj && billDate <= toDateObj).toBeTruthy();
+        }
     }
 }

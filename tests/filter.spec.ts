@@ -2,7 +2,7 @@ import { parse } from 'csv-parse/sync';
 import fs from 'fs';
 import { test, expect } from "@playwright/test"
 import "dotenv/config";
-import { FilterPage } from '../Pages/Filter';
+import { FilterPage } from '../Pages/Billing_Bills';
 
 const testdatacsv = './Data/testdata.csv';
 fs.readFileSync(testdatacsv, 'utf-8');
@@ -33,9 +33,14 @@ test.describe('Filter Tests', () => {
 
   });
 
-  test.only('Filter Test for number of total bills assertion', async ({ page }) => {
+  test('Filter Test for number of total bills assertion', async ({ page }) => {
     const ClientFilter = new FilterPage(page);
     await ClientFilter.NumberofBillsassertion(0);
+    await page.waitForLoadState('networkidle');
+  });
+  test.only('Filter test for date filter', async ({ page }) => {
+    const ClientFilter = new FilterPage(page);
+    await ClientFilter.DateFilterAssertion("12/08/2025", "21/08/2025");//day/month/year
     await page.waitForLoadState('networkidle');
   });
 });
