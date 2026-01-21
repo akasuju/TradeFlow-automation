@@ -20,27 +20,43 @@ test.describe('Filter Tests', () => {
   //   await page.getByRole('button', { name: 'Filter' }).click();
   // });
 
-  test.skip(' Filter Test client code filter in Buy', async ({ page }) => {
+  test(' Filter Test client code filter in Buy', async ({ page }) => {
+    await page.goto(process.env.Bills!);
     const ClientFilter = new FilterPage(page);
-    await ClientFilter.applyClientCodeFilter_Buy(1);
+    await ClientFilter.applyClientCodeFilter_Buy(2);
     await page.waitForLoadState('networkidle');
 
   });
   test(' Filter Test client code filter in Sell', async ({ page }) => {
+    await page.goto(process.env.Bills!);
     const ClientFilter = new FilterPage(page);
     await ClientFilter.applyClientCodeFilter_Sell(0);
     await page.waitForLoadState('networkidle');
 
   });
 
-  test('Filter Test for number of total bills assertion', async ({ page }) => {
+
+  test('Filter test for date filter', async ({ page }) => {
+    await page.goto(process.env.Bills!);
     const ClientFilter = new FilterPage(page);
-    await ClientFilter.NumberofBillsassertion(0);
+    await ClientFilter.ADDateFilterAssertion("12/08/2025", "21/08/2025");//day/month/year
     await page.waitForLoadState('networkidle');
   });
-  test.only('Filter test for date filter', async ({ page }) => {
-    const ClientFilter = new FilterPage(page);
-    await ClientFilter.DateFilterAssertion("12/08/2025", "21/08/2025");//day/month/year
+
+  test('Filter test using BS date with type BUY', async ({ page }) => {
+    await page.goto(process.env.Bills!);
+    const clientfilter = new FilterPage(page);
+    await clientfilter.BSDateFilterAssertion();
+    await clientfilter.applyClientCodeFilter_Buy(2);
     await page.waitForLoadState('networkidle');
   });
+
+test('Filter test using BS date with type SELL', async ({ page }) => {
+    await page.goto(process.env.Bills!);
+    const clientfilter = new FilterPage(page);
+    await clientfilter.BSDateFilterAssertion();
+    await clientfilter.applyClientCodeFilter_Sell(1);
+    await page.waitForLoadState('networkidle');
+  });
+
 });
